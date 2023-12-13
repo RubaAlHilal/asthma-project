@@ -27,15 +27,8 @@ class LeftDrawer extends StatelessWidget {
             Container(
               alignment: Alignment.center,
               padding: const EdgeInsets.all(16),
-<<<<<<< HEAD
-
-              color: const Color(0xff146C94),
-              child: const Text('Dashboard'),
-
-=======
               color: Color(0xff146C94),
               child: Text('Dashboard'),
->>>>>>> 0bd896df48fd24f6ba282bd76263c4c9be769c2a
             ),
             Container(
                 padding: const EdgeInsets.only(left: 10),

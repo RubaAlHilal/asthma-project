@@ -1,6 +1,6 @@
 import 'package:dashboard/bloc/task_bloc.dart';
 import 'package:dashboard/bloc/user_bloc/user_bloc.dart';
-import 'package:dashboard/screens/dashboard/methods/show_dialog.dart';
+// import 'package:dashboard/screens/dashboard/methods/show_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -66,34 +66,34 @@ class _DoctorInformationState extends State<DoctorInformation> {
         const SizedBox(height: 15),
         BlocBuilder<TaskBloc, TaskState>(
           builder: (context, state) {
-            if (state is getTaskState) {
-              return SizedBox(
-                width: 120,
-                height: 100,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: state.tasks.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Container(
-                      width: 70,
-                      height: 30,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: const Color.fromARGB(255, 50, 120, 152)),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.done_outline_rounded,
-                            size: 18,
-                          ),
-                          Text(state.tasks[index].task!),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              );
-            }
+            // if (state is getTaskState) {
+            //   return SizedBox(
+            //     width: 120,
+            //     height: 100,
+            //     child: ListView.builder(
+            //       shrinkWrap: true,
+            //       itemCount: state.tasks.length,
+            //       itemBuilder: (BuildContext context, int index) {
+            //         return Container(
+            //           width: 70,
+            //           height: 30,
+            //           decoration: BoxDecoration(
+            //               borderRadius: BorderRadius.circular(10),
+            //               color: const Color.fromARGB(255, 50, 120, 152)),
+            //           child: Row(
+            //             children: [
+            //               const Icon(
+            //                 Icons.done_outline_rounded,
+            //                 size: 18,
+            //               ),
+            //               Text(state.tasks[index].task!),
+            //             ],
+            //           ),
+            //         );
+            //       },
+            //     ),
+            //   );
+            // }
             return Center(
               child: CircularProgressIndicator(),
             );
@@ -101,7 +101,7 @@ class _DoctorInformationState extends State<DoctorInformation> {
         ),
         InkWell(
           onTap: () {
-            ShowDialogWidget(context, widget.taskController);
+            // ShowDialogWidget(context, widget.taskController);
           },
           child: Container(
             height: 30,
