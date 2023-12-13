@@ -1,21 +1,21 @@
-import 'package:asthma/Screens/HomeScreen/home_screen.dart';
-import 'package:asthma/constants/colors.dart';
-import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:asthma/Screens/HomeScreen/widgets/location_functions.dart';
+import 'package:asthma/helper/imports.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AirQuality extends StatelessWidget {
   const AirQuality({
     super.key,
   });
 
-  getAirQualityStatus(double? airValue) {
+  getAirQualityStatus(double? airValue, BuildContext context) {
     if (airValue! >= 0 && airValue <= 50) {
-      return 'good';
+      return AppLocalizations.of(context)!.good;
     } else if (airValue >= 51 && airValue <= 100) {
-      return 'moderate';
+      return AppLocalizations.of(context)!.normal;
     } else if (airValue >= 100 && airValue <= 200) {
-      return 'unhealthy';
+      return AppLocalizations.of(context)!.bad;
     } else {
       return '';
     }
@@ -32,32 +32,27 @@ class AirQuality extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
-            Text(
-              '$value%',
-              style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: ColorPaltte().darkBlue),
+            BlocBuilder<AsthmaBloc, AsthmaState>(
+              builder: (context, state) {
+                return Text(
+                  '$value%',
+                  style: const TextStyle().qualityFont,
+                );
+              },
             ),
             const SizedBox(
               width: 8,
             ),
             Text(
               AppLocalizations.of(context)!.quality,
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: ColorPaltte().darkBlue),
+              style: const TextStyle().qualtyText,
             ),
             const SizedBox(
               width: 8,
             ),
             Text(
-              getAirQualityStatus(value!).toString(),
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: ColorPaltte().newDarkBlue),
+              getAirQualityStatus(value!, context).toString(),
+              style: const TextStyle().quality,
             ),
             const Spacer(),
             IconButton(

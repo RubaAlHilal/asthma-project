@@ -1,16 +1,4 @@
-import 'package:asthma/Screens/NavBar/nav_bar.dart';
-import 'package:asthma/Screens/loading/loading_screen.dart';
-import 'package:asthma/blocs/auth_bloc/auth_bloc.dart';
-import 'package:asthma/constants/colors.dart';
-import 'package:asthma/extensions/loading_extension.dart';
-import 'package:asthma/extensions/navigator.dart';
-import 'package:asthma/extensions/screen_dimensions.dart';
-import 'package:asthma/extensions/text.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pinput/pinput.dart';
-
-import '../HomeScreen/home_screen.dart';
+import 'package:asthma/helper/imports.dart';
 
 class OtpScreen extends StatelessWidget {
   const OtpScreen({super.key, required this.email});
@@ -26,15 +14,13 @@ class OtpScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-                child: Container(
-              child: Center(
-                  child: Image.asset(
-                color: Colors.white,
-                "assets/mail.png",
-                height: 150,
-                width: 150,
-              )),
-            )),
+                child: Center(
+                    child: Image.asset(
+              color: Colors.white,
+              "assets/mail.png",
+              height: 150,
+              width: 150,
+            ))),
             Container(
               width: MediaQuery.of(context).size.width,
               decoration: const BoxDecoration(
@@ -55,24 +41,25 @@ class OtpScreen extends StatelessWidget {
                   ),
                   RichText(
                     text: TextSpan(
-                      style: TextStyle(color: Colors.grey[700], fontSize: 16),
-                      children: const [
-                        TextSpan(
+                      style: const TextStyle().authGreyFont,
+                      children: [
+                        const TextSpan(
                           text: "check otp code on your ",
                         ),
                         TextSpan(
-                            text: "Email ",
-                            style: TextStyle(fontWeight: FontWeight.w700))
+                            text: "Email ", style: const TextStyle().bold700)
                       ],
                     ),
                   ),
                   const SizedBox(
                     height: 50,
                   ),
-                  BlocListener<AuthBloc, AuthState>(
+                  BlocListener<AuthBloc, AuthStates>(
                     listener: (context, state) {
                       if (state is SuccessVerificationState) {
-                        context.pushAndRemoveUntil(view: const LoadingScreen());
+                        context.read<AuthBloc>().add(CheckLoginEvent());
+                        context.pushAndRemoveUntil(
+                            view: const OnboradingScreen());
                       } else if (state is ErrorVerificationState) {
                         Navigator.of(context).pop();
                         context.showErrorMessage(msg: state.message);

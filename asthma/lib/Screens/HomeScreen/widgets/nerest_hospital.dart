@@ -1,10 +1,4 @@
-import 'package:asthma/Models/location_model.dart';
-import 'package:asthma/blocs/asthma_bloc/asthma_bloc.dart';
-import 'package:asthma/constants/colors.dart';
-import 'package:asthma/extensions/screen_dimensions.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:asthma/helper/imports.dart';
 
 class NerestHospital extends StatelessWidget {
   const NerestHospital({
@@ -17,15 +11,18 @@ class NerestHospital extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<AsthmaBloc>();
-    return BlocBuilder<AsthmaBloc, AsthmaState>(builder: (context, state) {
-      if (state is LoadingState) {
-        return Center(
-          child: Icon(Icons.error),
-        );
-      } else if (state is SuccessHospitalState) {
+
+    return BlocBuilder<AsthmaBloc, AsthmaState>(
+        buildWhen: (oldState, newState) {
+      if (newState is SuccessHospitalState) {
+        return true;
+      }
+      return false;
+    }, builder: (context, state) {
+      if (state is SuccessHospitalState) {
         if (state.hospitalsData!.isNotEmpty) {
-          return Container(
-            height: context.getHeight() * 0.21,
+          return SizedBox(
+            height: context.getHeight() * 0.24,
             width: context.getWidth(),
             child: ListView.builder(
               shrinkWrap: true,
@@ -41,7 +38,7 @@ class NerestHospital extends StatelessWidget {
                         'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
                     await launchUrl(Uri.parse(url));
                   },
-                  child: Container(
+                  child: SizedBox(
                     width: context.getWidth(divide: 2.2),
                     height: context.getWidth(divide: 1.9),
                     child: Card(
@@ -83,7 +80,8 @@ class NerestHospital extends StatelessWidget {
                                 ),
                                 Text(
                                   '${(location.distance! / 1000).toStringAsFixed(2)} km',
-                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),

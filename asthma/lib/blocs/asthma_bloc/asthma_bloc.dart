@@ -1,10 +1,7 @@
-import 'dart:async';
-import 'package:asthma/Models/location_model.dart';
-import 'package:asthma/Models/medication_model.dart';
-import 'package:asthma/Models/symptoms_model.dart';
-import 'package:asthma/Services/supabase.dart';
-import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
+
+
+
+import '../../helper/imports.dart';
 part 'asthma_event.dart';
 part 'asthma_state.dart';
 
@@ -13,8 +10,6 @@ class AsthmaBloc extends Bloc<AsthmaEvent, AsthmaState> {
   List<MedicationModel>? medicationData;
   List<SymptomsModel>? symptomsData;
 
-  // MedicationModel? medicationData;
-  // SymptomsModel? symptomsData;
 
   AsthmaBloc() : super(AsthmaInitial()) {
     on<getHospitalDataEvent>(getData);
@@ -24,6 +19,8 @@ class AsthmaBloc extends Bloc<AsthmaEvent, AsthmaState> {
     on<AddSymptomEvent>(addSymptomMethod);
     on<DeleteMedicationEvent>(deleteMedicationMethod);
     on<DeleteSymptomEvent>(deleteSymtomMethod);
+    on<ChooseSymptomEvent>(changeSymptom);
+    on<ChooseLevelEvent>(changeLevel);
     add(GetMedicationDataEvent());
     add(GetSymptomDataEvent());
   }
@@ -34,12 +31,10 @@ class AsthmaBloc extends Bloc<AsthmaEvent, AsthmaState> {
     try {
       emit(LoadingState());
       hospitalData = await SupabaseServer().getHospitalData();
-
       await Future.delayed(const Duration(seconds: 1));
 
       emit(SuccessHospitalState(hospitalData));
     } catch (error) {
-      print(error);
       emit(ErrorState());
     }
   }
@@ -50,10 +45,8 @@ class AsthmaBloc extends Bloc<AsthmaEvent, AsthmaState> {
       emit(LoadingState());
       medicationData = await SupabaseServer().getMedication();
       await Future.delayed(const Duration(seconds: 1));
-
       emit(SuccessGetMedicationState(medications: medicationData!));
     } catch (error) {
-      print(error);
       emit(ErrorState());
     }
   }
@@ -66,7 +59,6 @@ class AsthmaBloc extends Bloc<AsthmaEvent, AsthmaState> {
       await Future.delayed(const Duration(seconds: 1));
       emit(SuccessGetSymptomState(symptoms: symptomsData!));
     } catch (error) {
-      print(error);
       emit(ErrorState());
     }
   }
@@ -80,10 +72,9 @@ class AsthmaBloc extends Bloc<AsthmaEvent, AsthmaState> {
           "description": event.symtomDetails,
           "intensity": event.symptomIntensity,
         });
-
         emit(SuccessAddSymptomState());
         add(GetSymptomDataEvent());
-
+        emit(LoadingState());
         emit(SucsessMessageState(message: 'symptoms added'));
       } else {
         emit(ADDErrorState(message: 'Please fill all the fields'));
@@ -104,10 +95,9 @@ class AsthmaBloc extends Bloc<AsthmaEvent, AsthmaState> {
           "days": event.days,
           "date": event.date,
         });
-
         emit(SuccessAddMedicationState());
         add(GetMedicationDataEvent());
-
+        emit(LoadingState());
         emit(SucsessMessageState(message: 'Medication Added'));
       } else {
         emit(ADDErrorState(message: 'Please fill all the fields'));
@@ -121,11 +111,11 @@ class AsthmaBloc extends Bloc<AsthmaEvent, AsthmaState> {
       DeleteMedicationEvent event, Emitter<AsthmaState> emit) async {
     try {
       await SupabaseServer().deleteMedication(id: event.id);
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 1));
       allMedication.remove(event.id);
       add(GetMedicationDataEvent());
+      emit(LoadingState());
     } catch (error) {
-      print(error);
       emit(ErrorState());
     }
   }
@@ -137,9 +127,19 @@ class AsthmaBloc extends Bloc<AsthmaEvent, AsthmaState> {
       await Future.delayed(const Duration(seconds: 1));
       allSymptoms.remove(event.id);
       add(GetSymptomDataEvent());
+      emit(LoadingState());
     } catch (error) {
-      print(error);
       emit(ErrorState());
     }
+  }
+
+  FutureOr<void> changeSymptom(
+      ChooseSymptomEvent event, Emitter<AsthmaState> emit) {
+    emit(ChangeSymptomState(event.selectedSymptom));
+  }
+
+  FutureOr<void> changeLevel(
+      ChooseLevelEvent event, Emitter<AsthmaState> emit) {
+    emit(ChangeLevelState(event.selectedLevel));
   }
 }

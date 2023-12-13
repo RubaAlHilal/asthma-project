@@ -1,8 +1,9 @@
 import 'package:asthma/constants/colors.dart';
+import 'package:asthma/extensions/text.dart';
 import 'package:flutter/material.dart';
 
 class AddTextfield extends StatelessWidget {
-  const AddTextfield({
+  AddTextfield({
     super.key,
     required this.label,
     required this.fieldController,
@@ -15,7 +16,7 @@ class AddTextfield extends StatelessWidget {
   });
   final String label;
   final TextEditingController fieldController;
-  final double? fieldHeight;
+  double? fieldHeight = 55;
 
   final double fieldWidth;
   final Icon? icon;
@@ -35,7 +36,7 @@ class AddTextfield extends StatelessWidget {
             style: TextStyle(
                 fontSize: 18,
                 color: ColorPaltte().darkBlue,
-                fontWeight: FontWeight.w500),
+                fontWeight: FontWeight.w600),
           ),
           const SizedBox(
             height: 8,
@@ -45,15 +46,14 @@ class AddTextfield extends StatelessWidget {
             width: fieldWidth,
             height: fieldHeight,
             decoration: BoxDecoration(
-                color: ColorPaltte().newlightBlue,
+                color: ColorPaltte().fieldGrey,
                 borderRadius: BorderRadius.circular(10)),
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: TextField(
                   readOnly: onlyRead,
                   onTap: onTapped,
-                  cursorColor: ColorPaltte().darkBlue,
-                  textAlign: TextAlign.left,
+                  cursorColor: Colors.grey,
                   controller: fieldController,
                   decoration: InputDecoration(
                     focusedBorder:
@@ -63,7 +63,7 @@ class AddTextfield extends StatelessWidget {
                     prefixIcon: icon,
                     iconColor: ColorPaltte().darkBlue,
                     hintText: label,
-                    hintStyle: TextStyle(color: ColorPaltte().darkBlue),
+                    hintStyle: const TextStyle().fontTextfield,
                   )),
             ),
           ),

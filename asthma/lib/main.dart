@@ -1,27 +1,14 @@
-import 'package:asthma/Screens/loading/loading_screen.dart';
-import 'package:asthma/blocs/language_bloc/language_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:asthma/blocs/chat_bloc/chat_bloc.dart';
+import 'package:asthma/helper/imports.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:asthma/Screens/loading/loading_screen.dart';
-
-import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:asthma/Screens/breathing/breathing_screen.dart';
-
-import 'package:asthma/blocs/asthma_bloc/asthma_bloc.dart';
-import 'package:asthma/blocs/auth_bloc/auth_bloc.dart';
-import 'package:asthma/constants/colors.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'Services/networking_api.dart';
-import 'blocs/user_bloc/user_bloc.dart';
-import 'helper/observer.dart';
-
+late SharedPreferences prefs;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   SupabaseNetworking().getSupabaseInitialize;
+  prefs = await SharedPreferences.getInstance();
   Bloc.observer = MyBlocObserver();
 
   runApp(const MainApp());
@@ -36,6 +23,9 @@ class MainApp extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (context) => LanguageBloc(),
+        ),
+        BlocProvider(
+          create: (context) => ChatBloc(),
         ),
         BlocProvider(
           create: (context) => AuthBloc()..add(CheckLoginEvent()),
@@ -58,18 +48,21 @@ class MainApp extends StatelessWidget {
             return MaterialApp(
               locale: Locale(state.lang),
               theme: ThemeData(
+                textTheme: GoogleFonts.tajawalTextTheme(
+                  Theme.of(context).textTheme,
+                ),
                 useMaterial3: false,
               ),
               debugShowCheckedModeBanner: false,
               localizationsDelegates: const [
-                AppLocalizations.delegate, // Add this line
+                AppLocalizations.delegate,
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
               supportedLocales: const [
-                Locale('en'), // English
-                Locale('ar'), // Spanish
+                Locale('en'),
+                Locale('ar'),
               ],
               home: const LoadingScreen(),
             );
@@ -81,16 +74,16 @@ class MainApp extends StatelessWidget {
                 scaffoldBackgroundColor: ColorPaltte().newDarkBlue),
             debugShowCheckedModeBanner: false,
             localizationsDelegates: const [
-              AppLocalizations.delegate, // Add this line
+              AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: const [
-              Locale('en'), // English
-              Locale('ar'), // Spanish
+              Locale('en'),
+              Locale('ar'),
             ],
-            home: const LoadingScreen(),
+            home: const OnboradingScreen(),
           );
         },
       ),

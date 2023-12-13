@@ -1,19 +1,6 @@
 // ignore_for_file: must_be_immutable
 
-import 'package:asthma/Screens/auth/login_screen.dart';
-import 'package:asthma/Screens/auth/otp_screen.dart';
-import 'package:asthma/Screens/auth/widgets/button_auth_widget.dart';
-import 'package:asthma/Screens/auth/widgets/text_form_widget.dart';
-import 'package:asthma/blocs/auth_bloc/auth_bloc.dart';
-import 'package:asthma/constants/colors.dart';
-import 'package:asthma/extensions/loading_extension.dart';
-import 'package:asthma/extensions/navigator.dart';
-import 'package:asthma/extensions/screen_dimensions.dart';
-import 'package:asthma/extensions/text.dart';
-import 'package:asthma/extensions/validtor.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:asthma/helper/imports.dart';
 
 class SignupScreen extends StatelessWidget {
   SignupScreen({super.key});
@@ -37,29 +24,26 @@ class SignupScreen extends StatelessWidget {
           height: context.getHeight(),
           child: ListView(
             children: [
-              SizedBox(
-                height: 200,
+              const SizedBox(
+                height: 180,
               ),
               Container(
-                decoration: const BoxDecoration(
-                    color: Colors.white,
+                decoration: BoxDecoration(
+                    color: ColorPaltte().white,
                     borderRadius:
-                        BorderRadius.only(topLeft: Radius.circular(100))),
+                        const BorderRadius.only(topLeft: Radius.circular(100))),
                 height: MediaQuery.of(context).size.height * 0.8,
                 child: Column(
                   children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Text("Create new Account", style: const TextStyle().bold24),
-                    const SizedBox(
-                      height: 30,
-                    ),
+                    const SizedBox(height: 30),
+                    Text(AppLocalizations.of(context)!.create,
+                        style: const TextStyle().bold24),
+                    const SizedBox(height: 20),
                     TextFieldWidget(
                       keyForm: _userNameKey,
-                      hint: "UserName",
+                      hint: AppLocalizations.of(context)!.name,
                       controller: nameController,
-                      titel: "NAME",
+                      titel: AppLocalizations.of(context)!.name,
                       validator: (value) {
                         if (value!.isEmpty) {
                           return "please enter name";
@@ -69,15 +53,15 @@ class SignupScreen extends StatelessWidget {
                     ),
                     TextFieldWidget(
                       keyForm: _emailKey,
-                      hint: "exambel@exambel.com",
+                      hint: "example@example.com",
                       controller: emailController,
-                      titel: "EMAIL",
+                      titel: AppLocalizations.of(context)!.email,
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return "please enter email";
+                          return AppLocalizations.of(context)!.emptyEmail;
                         }
                         if (!value.isValidEmail) {
-                          return "Email must be contain @ And .com";
+                          return AppLocalizations.of(context)!.mustEmail;
                         }
                         return null;
                       },
@@ -86,18 +70,18 @@ class SignupScreen extends StatelessWidget {
                       keyForm: _phoneKey,
                       hint: "05xxxxxxxx",
                       controller: phoneController,
-                      titel: "Phone",
+                      titel: AppLocalizations.of(context)!.phone,
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return "please enter your number";
+                          return AppLocalizations.of(context)!.emptyNum;
                         }
                         if (!value.isValidPhone) {
-                          return "10 number";
+                          return AppLocalizations.of(context)!.num;
                         }
                         return null;
                       },
                     ),
-                    BlocBuilder<AuthBloc, AuthState>(
+                    BlocBuilder<AuthBloc, AuthStates>(
                       builder: (context, state) {
                         if (state is DisplayState) {
                           return TextFieldWidget(
@@ -107,15 +91,15 @@ class SignupScreen extends StatelessWidget {
                             displayPass: state.display,
                             obscure: true,
                             keyForm: _passwordKey,
-                            hint: "Password",
+                            hint: AppLocalizations.of(context)!.password,
                             controller: passwordController,
-                            titel: "PASSWORD",
+                            titel: AppLocalizations.of(context)!.password,
                             validator: (value) {
                               if (value!.isEmpty) {
-                                return "please enter password";
+                                return AppLocalizations.of(context)!.emptyPass;
                               }
                               if (!value.isValidPassword) {
-                                return "must be contain Uppercase, lowercase and (!@#*~)";
+                                return AppLocalizations.of(context)!.mustPass;
                               }
                               return null;
                             },
@@ -128,26 +112,26 @@ class SignupScreen extends StatelessWidget {
                           displayPass: display,
                           obscure: true,
                           keyForm: _passwordKey,
-                          hint: "Password",
+                          hint: AppLocalizations.of(context)!.password,
                           controller: passwordController,
-                          titel: "PASSWORD",
+                          titel: AppLocalizations.of(context)!.password,
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return "please enter password";
+                              return AppLocalizations.of(context)!.emptyPass;
                             }
                             if (!value.isValidPassword) {
-                              return "must be contain Uppercase, lowercase and (!@#*~)";
+                              return AppLocalizations.of(context)!.mustPass;
                             }
                             return null;
                           },
                         );
                       },
                     ),
-                    SizedBox(
-                      height: 8,
+                    const SizedBox(
+                      height: 15,
                     ),
-                    BlocBuilder<AuthBloc, AuthState>(
-                      buildWhen: (oldStete, newState) {
+                    BlocBuilder<AuthBloc, AuthStates>(
+                      buildWhen: (oldState, newState) {
                         if (newState is SignUpSuccessState) {
                           context.push(
                               view: OtpScreen(
@@ -159,9 +143,8 @@ class SignupScreen extends StatelessWidget {
                         return false;
                       },
                       builder: (context, state) {
-                        return ButtonAuthWidget(
-                          text: "SignUp",
-                          onPressed: () {
+                        return ButtonWidget(
+                          onPress: () {
                             context.read<AuthBloc>().add(SignUpAuthEvent(
                                 nameController.text,
                                 emailController.text,
@@ -173,6 +156,10 @@ class SignupScreen extends StatelessWidget {
                                 _phoneKey));
                             context.showLoading();
                           },
+                          widget: Text(
+                            AppLocalizations.of(context)!.signup,
+                            style: const TextStyle().fontButton,
+                          ),
                         );
                       },
                     ),
@@ -181,17 +168,16 @@ class SignupScreen extends StatelessWidget {
                     ),
                     RichText(
                       text: TextSpan(
-                        style:
-                            const TextStyle(color: Colors.black, fontSize: 16),
+                        style: const TextStyle().authFont,
                         children: [
-                          const TextSpan(text: "Already Register? "),
+                          TextSpan(text: AppLocalizations.of(context)!.already),
                           TextSpan(
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () => context.push(
                                       view: LoginScreen(),
                                     ),
-                              text: "Login here",
-                              style: TextStyle(color: Colors.grey[700]))
+                              text: AppLocalizations.of(context)!.loginHere,
+                              style: const TextStyle().authGreyFont)
                         ],
                       ),
                     ),

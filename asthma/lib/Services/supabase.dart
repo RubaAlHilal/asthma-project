@@ -1,8 +1,5 @@
-import 'dart:typed_data';
-import 'package:asthma/Models/location_model.dart';
-import 'package:asthma/Models/medication_model.dart';
-import 'package:asthma/Models/symptoms_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:asthma/helper/imports.dart';
 
 List<LocationModel> allHospetal = [];
 List<MedicationModel> allMedication = [];
@@ -12,20 +9,17 @@ class SupabaseServer {
   final supabase = Supabase.instance.client;
 
   getHospitalData() async {
-    
     final hospitalData = await supabase.from("hospitals").select();
 
-    
     for (var element in hospitalData) {
       allHospetal.add(LocationModel.fromJson(element));
     }
-   
+
     return allHospetal;
   }
 
   getMedication() async {
     final data = await supabase.from("medication").select("*");
-    print(data);
     allMedication.clear();
     for (var element in data) {
       allMedication.add(MedicationModel.fromJson(element));
@@ -35,7 +29,6 @@ class SupabaseServer {
 
   getSymptoms() async {
     final data = await supabase.from("symptoms").select("*");
-    print(data);
     allSymptoms.clear();
     for (var element in data) {
       allSymptoms.add(SymptomsModel.fromJson(element));
@@ -57,18 +50,5 @@ class SupabaseServer {
 
   deleteSymptom({required int id}) async {
     await supabase.from("symptoms").delete().eq('id', id);
-  }
-
-  saveCaptrueImage(Uint8List pathImagefile) async {
-    final supabase = Supabase.instance.client;
-    final time = DateTime.now().millisecondsSinceEpoch;
-    final response = await supabase.storage.from('captrue_image').uploadBinary(
-        'image$time.png', pathImagefile,
-        fileOptions: FileOptions(upsert: true));
-    final imagePath =
-        supabase.storage.from('captrue_image').getPublicUrl('image$time.png');
-
-    print('path$imagePath');
-    print(response);
   }
 }

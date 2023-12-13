@@ -1,13 +1,6 @@
-import 'dart:typed_data';
-import 'package:asthma/Screens/Data_Symptoms_Screen/methods/symptoms.dart';
-import 'package:asthma/Screens/medication_data/component/data_card_widget.dart';
-import 'package:asthma/Screens/medication_data/component/medication_Bottomsheet.dart';
-import 'package:asthma/Services/supabase.dart';
-import 'package:asthma/constants/colors.dart';
-import 'package:flutter/material.dart';
-import 'package:screenshot/screenshot.dart';
-import 'package:asthma/blocs/asthma_bloc/asthma_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../helper/imports.dart';
+
 
 Widget? barcode;
 String? imageUrl;
@@ -16,150 +9,165 @@ class SymptomTrackerScreen extends StatefulWidget {
   const SymptomTrackerScreen({super.key});
 
   @override
-  _SymptomTrackerScreenState createState() => _SymptomTrackerScreenState();
+  SymptomTrackerScreenState createState() => SymptomTrackerScreenState();
 }
 
-class _SymptomTrackerScreenState extends State<SymptomTrackerScreen> {
-  ScreenshotController screenshotController = ScreenshotController();
+
+class SymptomTrackerScreenState extends State<SymptomTrackerScreen> {
+  @override
+  void initState() {
+    context.read<AsthmaBloc>().add(GetSymptomDataEvent());
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: ColorPaltte().white,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Symptoms',
-          style: TextStyle(color: ColorPaltte().darkBlue),
+        appBar: customAppBar(
+          context,
+          hasAction: true,
+          backcolor: ColorPaltte().newDarkBlue,
+          iconColor: ColorPaltte().white,
         ),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(
-            Icons.arrow_back,
-            color: ColorPaltte().darkBlue,
-          ),
-        ),
-        actions: [
-          IconButton(
-              onPressed: () async {
-                var container = Column(
-                  children: [
-                    ...allSymptoms.map(
-                      (e) => Card(
-                          child: Column(
-                        children: [
-                          Text(e.symptomName!),
-                          Text(e.symptomDetails!),
-                          Text(e.symptomIntensity!)
-                        ],
-                      )),
-                    )
-                  ],
-                );
-                Uint8List? capturedImage =
-                    await screenshotController.captureFromWidget(
-                        InheritedTheme.captureAll(
-                            context, Material(child: container)),
-                        delay: const Duration(seconds: 1));
-                imageUrl =
-                    await SupabaseServer().saveCaptrueImage(capturedImage);
-                // saved(capturedImage);
-                if (imageUrl != '') {
-                  barcode = generateBarcode(imageUrl ?? 'ggggg');
-                  print(barcode);
-                }
-              },
-              icon: Icon(Icons.ios_share, color: ColorPaltte().darkBlue))
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
+        body: Stack(
           children: [
-            Row(
-              children: [
-                Text(
-                  'Your symptoms',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: ColorPaltte().darkBlue),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () {
-                    showButtonSheet(context);
-                  },
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.add,
-                        color: ColorPaltte().newDarkBlue,
-                      ),
-                      Text(
-                        'Add Symptom',
-                        style: TextStyle(
-                          color: ColorPaltte().newDarkBlue,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            Container(
+              width: context.getWidth(),
+              decoration: BoxDecoration(
+                  color: ColorPaltte().newDarkBlue,
+                  borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30))),
+              height: 300,
             ),
-            BlocBuilder<AsthmaBloc, AsthmaState>(
-              buildWhen: (oldState, newState) {
-                if (newState is SuccessGetSymptomState) {
-                  return true;
-                }
-                return false;
-              },
-              builder: (context, state) {
-                if (state is SuccessGetSymptomState) {
-                  if (state.symptoms.isNotEmpty) {
-                    return Expanded(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: state.symptoms.length,
-                        itemBuilder: (context, index) {
-                          final symptom = state.symptoms[index];
-                          return DataCardWidget(
-                              textEntry1: "Symptom: ${symptom.symptomName}",
-                              textEntry2: "Details: ${symptom.symptomDetails}",
-                              textEntry3:
-                                  "intensity: ${symptom.symptomIntensity}",
-                              deleteTap: () {
-                                context.read<AsthmaBloc>().add(
-                                    DeleteSymptomEvent(id: symptom.symptomID!));
-                              });
-                        },
-                      ),
-                    );
-                  } else {
-                    return Center(
-                      child: Text(
-                        "No symptoms added",
-                        style: TextStyle(
-                            fontSize: 18, color: ColorPaltte().darkBlue),
-                      ),
-                    );
-                  }
-                } else if (state is ErrorGetState) {
-                  const Center(child: Text("Error getting data"));
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text(state.message)));
-                }
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              },
+
+            Positioned(
+              top: -100,
+              right: 50,
+              child: Image.asset(
+                'lib/assets/images/Doctor-bro.png',
+                width: 500,
+                height: 500,
+              ),
+            ),
+            Positioned(
+              left: 175,
+              top: 120,
+              child: Text(
+                AppLocalizations.of(context)!.symptom,
+                style: TextStyle(
+                    fontSize: 35,
+                    color: ColorPaltte().white,
+                    fontWeight: FontWeight.w600),
+              ),
+            ),
+            Positioned(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    const SizedBox(
+                      height: 320,
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.mySymptom,
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: ColorPaltte().darkBlue),
+                        ),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () async {
+                            await showSymptomButtonSheet(context);
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.add,
+                                color: ColorPaltte().newDarkBlue,
+                              ),
+                              Text(
+                                AppLocalizations.of(context)!.addSymptom,
+                                style: TextStyle(
+                                  color: ColorPaltte().newDarkBlue,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    BlocBuilder<AsthmaBloc, AsthmaState>(
+                      buildWhen: (oldState, newState) {
+                        if (newState is SuccessGetSymptomState) {
+                          return true;
+                        }
+                        if (newState is LoadingState) {
+                          return true;
+                        }
+                        return false;
+                      },
+                      builder: (context, state) {
+                        if (state is SuccessGetSymptomState) {
+                          if (state.symptoms.isNotEmpty) {
+                            return Expanded(
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: state.symptoms.length,
+                                itemBuilder: (context, index) {
+                                  final symptom = state.symptoms[index];
+                                  return DataCardWidget(
+                                    textEntry1:
+                                        "${AppLocalizations.of(context)!.symptom}: ${symptom.symptomName}",
+                                    textEntry2:
+                                        "${AppLocalizations.of(context)!.details}: ${symptom.symptomDetails}",
+                                    textEntry3:
+                                        "${AppLocalizations.of(context)!.intensity}: ${symptom.symptomIntensity}",
+                                    deleteTap: () {
+                                      context.read<AsthmaBloc>().add(
+                                          DeleteSymptomEvent(
+                                              id: symptom.symptomID!));
+                                    },
+                                    imageURL: 'lib/assets/images/symptoms.png',
+                                  );
+                                },
+                              ),
+                            );
+                          } else {
+                            return Center(
+                              child: Text(
+                                AppLocalizations.of(context)!.noSymtomps,
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: ColorPaltte().darkBlue),
+                              ),
+                            );
+                          }
+                        } else if (state is ErrorGetState) {
+                          Center(
+                              child:
+                                  Text(AppLocalizations.of(context)!.errorGet));
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    content: Text(state.message),
+                                  ));
+                          Future.delayed(const Duration(seconds: 1), () {});
+                        }
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 }

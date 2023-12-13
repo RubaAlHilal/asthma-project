@@ -1,12 +1,7 @@
-import 'dart:typed_data';
-import 'package:asthma/Screens/medication_data/component/data_card_widget.dart';
-import 'package:asthma/Screens/medication_data/component/medication_Bottomsheet.dart';
-import 'package:asthma/Services/supabase.dart';
-import 'package:asthma/constants/colors.dart';
-import 'package:flutter/material.dart';
-import 'package:screenshot/screenshot.dart';
-import 'package:asthma/blocs/asthma_bloc/asthma_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+
+// ignore_for_file: library_private_types_in_public_api
+import '../../helper/imports.dart';
+
 
 class MedicationTrackerScreen extends StatefulWidget {
   const MedicationTrackerScreen({super.key});
@@ -17,148 +12,159 @@ class MedicationTrackerScreen extends StatefulWidget {
 }
 
 class _MedicationTrackerScreenState extends State<MedicationTrackerScreen> {
-  ScreenshotController screenshotController = ScreenshotController();
+
+  @override
+  void initState() {
+    context.read<AsthmaBloc>().add(GetMedicationDataEvent());
+    super.initState();
+  }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: ColorPaltte().white,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'Medications',
-          style: TextStyle(color: ColorPaltte().darkBlue),
-        ),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(
-            Icons.arrow_back,
-            color: ColorPaltte().darkBlue,
+      appBar: customAppBar(context,
+          backcolor: ColorPaltte().newDarkBlue, iconColor: ColorPaltte().white),
+      body: Stack(
+        children: [
+          Container(
+            width: context.getWidth(),
+            decoration: BoxDecoration(
+                color: ColorPaltte().newDarkBlue,
+                borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30))),
+            height: 300,
           ),
-        ),
-        actions: [
-          IconButton(
-              onPressed: () async {
-                var container = Column(
-                  children: [
-                    ...allMedication.map(
-                      (e) => Card(
-                          child: Column(
-                        children: [
-                          Text(e.medicationName!),
-                          Text(e.days!.toString()),
-                          Text(e.date!)
-                        ],
-                      )),
-                    )
-                  ],
-                );
-                Uint8List? capturedImage =
-                    await screenshotController.captureFromWidget(
-                        InheritedTheme.captureAll(
-                            context, Material(child: container)),
-                        delay: const Duration(seconds: 1));
-                await SupabaseServer().saveCaptrueImage(capturedImage);
-                // saved(capturedImage);
-              },
-              icon: Icon(Icons.ios_share, color: ColorPaltte().darkBlue))
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Text(
-                  'Your Medication',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: ColorPaltte().darkBlue),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () {
-                    showButtonSheet(context);
-                  },
-                  child: Row(
+          Positioned(
+            top: -100,
+            right: 50,
+            child: Image.asset(
+              'lib/assets/images/Doctor-bro.png',
+              width: 500,
+              height: 500,
+            ),
+          ),
+          Positioned(
+            left: 175,
+            top: 120,
+            child: Text(
+              AppLocalizations.of(context)!.medicine,
+              style: TextStyle(
+                  fontSize: 35,
+                  color: ColorPaltte().white,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
+          Positioned(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 320,
+                  ),
+                  Row(
                     children: [
-                      Icon(
-                        Icons.add,
-                        color: ColorPaltte().newDarkBlue,
-                      ),
                       Text(
-                        'Add Medication',
+                        AppLocalizations.of(context)!.myMedicne,
                         style: TextStyle(
-                          color: ColorPaltte().newDarkBlue,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            color: ColorPaltte().darkBlue),
+                      ),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: () {
+                          showMedicationButtonSheet(context);
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.add,
+                              color: ColorPaltte().darkBlue,
+                            ),
+                            Text(
+                              AppLocalizations.of(context)!.addMedication,
+                              style: TextStyle(
+                                color: ColorPaltte().darkBlue,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-            BlocBuilder<AsthmaBloc, AsthmaState>(
-              buildWhen: (oldState, newState) {
-                if (newState is SuccessGetMedicationState) {
-                  return true;
-                }
-                return false;
-              },
-              builder: (context, state) {
-                if (state is SuccessGetMedicationState) {
-                  if (state.medications.isNotEmpty) {
-                    return Expanded(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: state.medications.length,
-                        itemBuilder: (context, index) {
-                          final medication = state.medications[index];
-                          return DataCardWidget(
-                            textEntry1: "name: ${medication.medicationName}",
-                            textEntry2:
-                                "days to take: ${medication.days.toString()}",
-                            textEntry3: "start date: ${medication.date}",
-                            deleteTap: () {
-                              context.read<AsthmaBloc>().add(
-                                    DeleteMedicationEvent(
-                                        id: medication.medicationID!),
-                                  );
-                            },
+                  BlocBuilder<AsthmaBloc, AsthmaState>(
+                    buildWhen: (oldState, newState) {
+                      if (newState is SuccessGetMedicationState) {
+                        return true;
+                      }
+                      if (newState is LoadingState) {
+                        return true;
+                      }
+                      return false;
+                    },
+                    builder: (context, state) {
+                      if (state is SuccessGetMedicationState) {
+                        if (state.medications.isNotEmpty) {
+                          return Expanded(
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: state.medications.length,
+                              itemBuilder: (context, index) {
+                                final medication = state.medications[index];
+                                return DataCardWidget(
+                                  textEntry1:
+                                      "${AppLocalizations.of(context)!.name}: ${medication.medicationName}",
+                                  textEntry2:
+                                      "${AppLocalizations.of(context)!.days}: ${medication.days.toString()}",
+                                  textEntry3:
+                                      "${AppLocalizations.of(context)!.startDate}: ${medication.date}",
+                                  deleteTap: () {
+                                    context.read<AsthmaBloc>().add(
+                                          DeleteMedicationEvent(
+                                              id: medication.medicationID!),
+                                        );
+                                  },
+                                  imageURL: 'lib/assets/images/pills.png',
+                                );
+                              },
+                            ),
                           );
-                        },
-                      ),
-                    );
-                  } else {
-                    return Center(
-                      child: Text(
-                        "No medication added",
-                        style: TextStyle(
-                            fontSize: 18, color: ColorPaltte().darkBlue),
-                      ),
-                    );
-                  }
-                } else if (state is ErrorGetState) {
-                  const Center(child: Text("Error getting data"));
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text(state.message)));
-                }
 
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              },
+                        } else {
+                          return Center(
+                            child: Text(
+                              AppLocalizations.of(context)!.noMedication,
+                              style: TextStyle(
+                                  fontSize: 18, color: ColorPaltte().darkBlue),
+                            ),
+                          );
+                        }
+                      } else if (state is ErrorGetState) {
+                        Center(
+                            child:
+                                Text(AppLocalizations.of(context)!.errorGet));
+                        showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  content: Text(state.message),
+                                ));
+                      }
+
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
- 
 }
